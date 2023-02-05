@@ -39,6 +39,7 @@ class MyApp extends StatelessWidget {
           // or simply save your changes to "hot reload" in a Flutter IDE).
           // Notice that the counter didn't reset back to zero; the application
           // is not restarted.
+          //fontFamily: "Roboto",
           primarySwatch: Colors.teal,
         ),
         home: FutureBuilder(
@@ -77,7 +78,7 @@ class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
   double _randInt = 1.0;
   double _randInt2 = 1.0;
-  List<String> _entries = <String>['jam night', 'd&d', 'hackermans'];
+  List<String> _entries = <String>['hackermans', 'jam night', 'd&d'];
   List<int> _colorCodes = <int>[600, 700, 800];
   List<bool> _displayGroup = <bool>[false, false, false];
   List<MaterialColor> _colorPalette = <MaterialColor>[
@@ -93,16 +94,12 @@ class _MyHomePageState extends State<MyHomePage> {
     'william m.',
     'jean-luc l.',
     'julien p.',
-    'polyhacker a.',
-    'polyhacker b.',
-    'polyhacker c.',
-    'polyhacker d.',
-    'polyhacker e.',
-    'polyhacker f.',
-    'polyhacker g.'
   ];
-
+  String _userid = "user2";
   int _nextColor = 0;
+  bool displayHacker = false;
+  bool displayJam = false;
+  bool displayDD = false;
   @override
   void initState() {
     super.initState();
@@ -111,13 +108,15 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _readData() {
-    FirebaseDatabase.instance.ref().child('test/soc').onValue.listen((event) {
+    DatabaseReference refUsers = FirebaseDatabase.instance.ref().child('users');
+    DatabaseReference refGroups =
+        FirebaseDatabase.instance.ref().child('groups');
+    FirebaseDatabase.instance.ref().child('users').onValue.listen((event) {
       final String progress = event.snapshot.value.toString();
-      setState(() {
-        _randInt = double.parse(progress.toString());
-      });
+      print(progress);
+      setState(() {});
     });
-    FirebaseDatabase.instance.ref().child('test/soh').onValue.listen((event) {
+    FirebaseDatabase.instance.ref().child('groups').onValue.listen((event) {
       final String progress2 = event.snapshot.value.toString();
       setState(() {
         _randInt2 = double.parse(progress2.toString());
@@ -220,7 +219,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                 },
                                 separatorBuilder:
                                     (BuildContext context, int index) =>
-                                        const Divider(),
+                                        const Divider(
+                                            color: Color.fromARGB(0, 0, 0, 0)),
                               )
                             ],
                           )),
@@ -242,12 +242,15 @@ class _MyHomePageState extends State<MyHomePage> {
                                     hoverColor: Colors.blueGrey,
                                     onPressed: () {
                                       setState(() {
-                                        _entries.insert(0, "d");
+                                        _entries.insert(
+                                            _colorCodes.length, "new group");
                                         _nextColor = (_nextColor > 100)
                                             ? _nextColor - 100
                                             : 800;
-                                        _colorCodes.insert(0, _nextColor);
-                                        _displayGroup.insert(0, false);
+                                        _colorCodes.insert(
+                                            _colorCodes.length, _nextColor);
+                                        _displayGroup.insert(
+                                            _colorCodes.length, false);
                                       });
                                     },
                                     icon: Icon(
@@ -281,7 +284,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     ],
                   ),
                 ),
-                displayGroupInfo(_participants)
+                whichGroup(_displayGroup[0], _displayGroup[1], _displayGroup[2],
+                    _participants)
               ],
             )),
             const SizedBox(width: 10)
@@ -292,7 +296,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-Widget displayGroupInfo(List<String> participants) {
+Widget displayGroupInfo(List<String> participants, String title, String jour,
+    String heure, String activity) {
   // get what group to display from firebase realtime database
   return Row(
     children: [
@@ -305,8 +310,8 @@ Widget displayGroupInfo(List<String> participants) {
           decoration: const BoxDecoration(
               color: Colors.blueGrey,
               borderRadius: const BorderRadius.all(Radius.circular(15))),
-          child: const Center(
-              child: Text('hackermans',
+          child: Center(
+              child: Text('${title}',
                   style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 24,
@@ -317,32 +322,32 @@ Widget displayGroupInfo(List<String> participants) {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const Text(
-                "donjons et dragons :",
+              Text(
+                "${activity}",
                 style: TextStyle(
-                  color: Colors.black,
+                  color: Color.fromARGB(255, 122, 98, 85),
                   fontWeight: FontWeight.bold,
                   fontSize: 18.0,
                 ),
               ),
-              buttonIcon(Icon(Icons.poll, color: Colors.white)),
+              buttonIcon(Icon(Icons.poll, color: Colors.white), () {}),
             ]),
         const SizedBox(height: 15),
         Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             RichText(
-              text: const TextSpan(
-                text: 'le dimanche 5 février,\n',
+              text: TextSpan(
+                text: '${jour},\n',
                 style: TextStyle(
                     color: Colors.blueGrey,
                     fontSize: 18.0,
-                    fontWeight: FontWeight.bold),
+                    fontWeight: FontWeight.normal),
                 children: <TextSpan>[
                   TextSpan(
-                      text: 'à dix-huit heures trente',
+                      text: 'at ${heure}',
                       style: TextStyle(
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.normal,
                       )),
                 ],
               ),
@@ -355,7 +360,7 @@ Widget displayGroupInfo(List<String> participants) {
           children: [
             RichText(
               text: const TextSpan(
-                text: 'liste des participants :\n',
+                text: 'list of participants:\n',
                 style: TextStyle(
                     color: Colors.black,
                     fontSize: 18.0,
@@ -387,7 +392,7 @@ Widget displayGroupInfo(List<String> participants) {
                     );
                   },
                   separatorBuilder: (BuildContext context, int index) =>
-                      const Divider(),
+                      const Divider(color: Color.fromARGB(0, 0, 0, 0)),
                 )
               ],
             )),
@@ -395,10 +400,12 @@ Widget displayGroupInfo(List<String> participants) {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            buttonIcon(Icon(
-              Icons.calendar_month,
-              color: Colors.white,
-            )),
+            buttonIcon(
+                Icon(
+                  Icons.calendar_month,
+                  color: Colors.white,
+                ),
+                () {}),
             RichText(
               text: const TextSpan(
                 text: 'be there',
@@ -408,7 +415,7 @@ Widget displayGroupInfo(List<String> participants) {
                     fontStyle: FontStyle.italic),
               ),
             ),
-            buttonIcon(Icon(Icons.group_add, color: Colors.white))
+            buttonIcon(Icon(Icons.group_add, color: Colors.white), () {})
           ],
         )
       ])),
@@ -417,7 +424,7 @@ Widget displayGroupInfo(List<String> participants) {
   );
 }
 
-Widget buttonIcon(Icon icone) {
+Widget buttonIcon(Icon icone, Function action) {
   return InkWell(
     child: Container(
       height: 30,
@@ -428,7 +435,49 @@ Widget buttonIcon(Icon icone) {
       child: Center(child: icone),
     ),
     onTap: () {
-      ;
+      action;
     },
   );
+}
+
+Widget whichGroup(bool displayHacker, bool displayJam, bool displayDD,
+    List<String> _participants) {
+  List<String> temp = [..._participants];
+
+  if (displayHacker == true) {
+    return displayGroupInfo(
+        _participants, "hackermans", "february 7th", "6:30 pm", "napping");
+  } else if (displayJam == true) {
+    temp.removeAt(0);
+    return displayGroupInfo(
+        temp, "jam night", "february 13th", "9:15 pm", "faking jazz together");
+  } else if (displayDD == true) {
+    temp.removeAt(2);
+    temp.removeAt(2);
+    return displayGroupInfo(
+        temp, "d&d", "february 15th", "7:00 pm", "fighting the demogorgon");
+  } else {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Container(
+            height: 135 * 4,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  "select a group",
+                  style: TextStyle(
+                    color: Colors.blueGrey,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18.0,
+                  ),
+                )
+              ],
+            ))
+      ],
+    );
+  }
 }
