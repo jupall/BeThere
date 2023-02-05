@@ -12,12 +12,12 @@ class Slot():
             self.end = end
 
 
-    def conflict(self, other):
+    '''def conflict(self, other):
         if isinstance(other, Slot):
             if other.start > self.start and other.end < self.end\
                 or self.start>other.start and self.end< other.end:
                 return True
-        return False
+        return False'''
 
     def __str__(self):
         return "start:{}, end:{}".format(self.start, self.end)
@@ -31,7 +31,7 @@ class SlotCount(Slot):
 
     def check(self, person):
         if person.conflict(self):
-            self. count += 1
+            self.count += 1
             self.members.append(person.name)
 
 
@@ -51,7 +51,7 @@ class Person():
     def conflict(self, slot):
         ans = False
         for s in self.dates:
-            if s.conflict(slot):
+            if (s.start<=slot.start and s.end>=slot.end):
                 return True
         return False
 
@@ -92,6 +92,14 @@ class Grid():
                 bestStart.append(self.ls[i].start)
         return bestStart
 
+    def getOnlyGood(self, periods=4):
+        ans = []
+        for i in range(0, len(self.ls)-periods):
+            score = sum([self.ls[j].count for j in range(i, i+periods)])
+            if score == periods:
+                ans += [self.ls[i].start]
+        return ans
+
     def choose(self, periods=4):
         bestStart = self.getBest(periods)
         ch = choice(bestStart)
@@ -114,3 +122,7 @@ class Grid():
                 start = bestStart[el]
                 end = start+self.delta
         return ans
+
+        
+
+    

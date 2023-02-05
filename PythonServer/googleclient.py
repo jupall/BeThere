@@ -4,6 +4,7 @@ import datetime
 import os.path
 import iso8601
 import json
+import pytz
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -54,17 +55,16 @@ def main():
         #timeSlot = freeTime(primaryCalendarId, service) 
         timeSlots = freeTime("1d1630549e81efe019bc3f8bf0e5df9fef5139070a8f9b85c0c29ecbd06364f5@group.calendar.google.com", service)
         p1 = Person(timeSlots)
-        grid = Grid('2023-02-06T11:00:00-05:00', '2023-02-11T12:00:00-05:00') # TODO: modify later according to user input on website
+        grid = Grid('2023-02-06T11:00:00-00:00', '2023-02-11T12:00:00-00:00') # TODO: modify later according to user input on website
         pls = [p1]
         grid.update(pls)
-        print(grid.choose())
+        onlyGood = grid.getOnlyGood(8)
         from random import choice
-        slotChosen = choice(timeSlots)
-        print(slotChosen)
-        startHour = iso8601.parse_date(slotChosen['start'])
+        onlyGoodest = choice(onlyGood)
+        onlyGoodest = onlyGoodest.replace(tzinfo=pytz.timezone('America/New_York'))
         #event is two hours long
-        endHour = startHour + datetime.timedelta(hours=2)
-        insertEventBasedOnTimeSlot(startHour, endHour, service)
+        endHour = onlyGoodest + datetime.timedelta(hours=2)
+        insertEventBasedOnTimeSlot(onlyGoodest, endHour, service)
 
     except HttpError as error:
         print('An error occurred: %s' % error)
