@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "11822329542",
+    "firebase_url": "https://be-there-polyhacks-default-rtdb.firebaseio.com",
+    "project_id": "be-there-polyhacks",
+    "storage_bucket": "be-there-polyhacks.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:11822329542:android:1f5979db594318c78831c7",
+        "android_client_info": {
+          "package_name": "com.example.bethere"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "11822329542-0g912qu8h1inu7ibjffr189kdh4d6b0n.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC42Hg2n3h0sHxSWnF0vjD0TTsurM8RDOo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "11822329542-0g912qu8h1inu7ibjffr189kdh4d6b0n.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "11822329542-r4p1ldghko6q81gjeg049ntukbqhj96s.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.bethere"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
