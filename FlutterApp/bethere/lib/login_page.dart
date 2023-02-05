@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:google_sign_in/google_sign_in.dart';
-
+import 'package:http/http.dart' as http;
 import 'main.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -38,5 +38,15 @@ class _LoginScreenState extends State<LoginScreen> {
     ])));
   }
 
-  void signIn() {}
+  void signIn() async {
+    final response = await http.get(Uri.parse(
+        "http://52.149.181.241:80/send2?phone=" + _userIDController.text));
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => MyHomePage(
+                title: 'bruh',
+              )),
+    );
+  }
 }

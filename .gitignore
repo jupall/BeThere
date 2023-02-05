@@ -19,3 +19,10 @@ doc/api/
 *.js_
 *.js.deps
 *.js.map
+
+#Misc python files
+/PythonServer/venv/
+/PythonServer/__pycache__
+
+#No API Tokens
+/PythonServer/*.json
