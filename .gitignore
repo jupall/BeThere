@@ -19,3 +19,9 @@ doc/api/
 *.js_
 *.js.deps
 *.js.map
+
+#No virtual env from server
+/PythonServer/venv/
+
+#No API Tokens
+/PythonServer/*.json
