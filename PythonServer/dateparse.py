@@ -1,8 +1,3 @@
-dates = [{'start': '2023-02-07T11:00:00', 'end': '2023-02-07T14:45:00-05:00'}, 
-{'start': '2023-02-08T22:00:00-05:00', 'end': '2023-02-09T08:00:00-05:00'},
-{'start': '2023-02-09T22:09:00-05:00', 'end': '2023-02-09T12:00:00-05:00'},
-{'start': '2023-02-07T22:16:00-05:00', 'end': '2023-02-08T16:00:00-05:00'}]
-
 import datetime as dt
 import iso8601
 from random import choice
@@ -10,8 +5,8 @@ from random import choice
 class Slot():
     def __init__(self, start, end):
         if isinstance(start, str):
-            self.start = iso8601.parse_date(start)
-            self.end = iso8601.parse_date(end)
+            self.start = iso8601.parse_date(start[0:19])
+            self.end = iso8601.parse_date(end[0:19])
         else:
             self.start = start
             self.end = end
@@ -19,7 +14,8 @@ class Slot():
 
     def conflict(self, other):
         if isinstance(other, Slot):
-            if other.start > self.start and other.start < self.end:
+            if other.start > self.start and other.end < self.end\
+                or self.start>other.start and self.end< other.end:
                 return True
         return False
 
@@ -34,7 +30,7 @@ class SlotCount(Slot):
         self.members = members
 
     def check(self, person):
-        if not person.conflict(self):
+        if person.conflict(self):
             self. count += 1
             self.members.append(person.name)
 
@@ -118,15 +114,3 @@ class Grid():
                 start = bestStart[el]
                 end = start+self.delta
         return ans
-
-        
-
-
-
-""" p1 = Person('p1', dates)
-grid = Grid('2023-02-07T11:00:00-05:00', '2023-02-09T12:00:00-05:00')
-pls = [p1]
-grid.update(pls)
-#print(list(map(str, grid.getBest(12)[:10])))
-#print(list(map(str, grid.results(12))))
-print(grid.choose(4))        """

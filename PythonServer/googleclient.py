@@ -13,7 +13,7 @@ from googleapiclient.errors import HttpError
 from dateparse import *
 
 # If modifying these scopes, delete the file token.json.
-SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
+SCOPES = ['https://www.googleapis.com/auth/calendar']
 
 
 def main():
@@ -33,7 +33,7 @@ def main():
         else:
             flow = InstalledAppFlow.from_client_secrets_file(
                 'credentials.json', SCOPES)
-            creds = flow.run_local_server(port=0)
+            creds = flow.run_local_server(port=0) #originally port=0 only
         # Save the credentials for the next run
         with open('token.json', 'w') as token:
             token.write(creds.to_json())
@@ -51,20 +51,27 @@ def main():
         if(primaryCalendarId == ""):
             print("No primary calendar found")
             return
-        timeSlot = freeTime(primaryCalendarId, service) 
-        p1 = Person(timeSlot)
-        grid = Grid('2023-02-07T11:00:00-05:00', '2023-02-09T12:00:00-05:00') # TODO: modify later
+        #timeSlot = freeTime(primaryCalendarId, service) 
+        timeSlots = freeTime("1d1630549e81efe019bc3f8bf0e5df9fef5139070a8f9b85c0c29ecbd06364f5@group.calendar.google.com", service)
+        p1 = Person(timeSlots)
+        grid = Grid('2023-02-06T11:00:00-05:00', '2023-02-11T12:00:00-05:00') # TODO: modify later according to user input on website
         pls = [p1]
         grid.update(pls)
-        print(grid.choose(4)) 
+        print(grid.choose())
+        from random import choice
+        slotChosen = choice(timeSlots)
+        print(slotChosen)
+        startHour = iso8601.parse_date(slotChosen['start'])
+        #event is two hours long
+        endHour = startHour + datetime.timedelta(hours=2)
+        insertEventBasedOnTimeSlot(startHour, endHour, service)
 
     except HttpError as error:
         print('An error occurred: %s' % error)
 
 def freeTime(user: str, service):
     now = datetime.datetime.utcnow().isoformat() + 'Z'  # 'Z' indicates UTC time
-    print("____ begin freebusy test ____")
-    nextWeek = (datetime.datetime.utcnow() + datetime.timedelta(days=7)).isoformat()
+    nextWeek = (datetime.datetime.utcnow() + datetime.timedelta(days=6)).isoformat()
     print(nextWeek)
     body = {
             "timeMin": now,
@@ -80,10 +87,10 @@ def freeTime(user: str, service):
     # add night time as busy time
     if(21 < now.hour or now.hour < 8):
         # add time until eight o'clock tomorrow
-        busyTimes.append({'start': now.isoformat(), 'end': (now + datetime.timedelta(days=1)).replace(hour=8, minute=0, second=0, microsecond=0).isoformat()})
+        busyTimes.append({'start': now.isoformat(), 'end': (now + datetime.timedelta(days=1)).replace(hour=8, minute=0, second=0, microsecond=0).isoformat() + '-05:00'})
     # add night time from 9pm to 8am every day
     for i in range(7):
-        busyTimes.append({'start': (now + datetime.timedelta(days=i)).replace(hour=21, minute=0, second=0, microsecond=0).isoformat(), 'end': (now + datetime.timedelta(days=i+1)).replace(hour=8, minute=0, second=0, microsecond=0).isoformat()})
+        busyTimes.append({'start': (now + datetime.timedelta(days=i)).replace(hour=21, minute=0, second=0, microsecond=0).isoformat() + '-05:00', 'end': (now + datetime.timedelta(days=i+1)).replace(hour=8, minute=0, second=0, microsecond=0).isoformat() + '-05:00'})
 
     # order the busy times by start time
     busyTimes.sort(key = lambda x: x['start'])
@@ -114,9 +121,39 @@ def freeTime(user: str, service):
         else: freeTime.append({'start': b['end'], 'end': busyTimes[nextElement]['start']})
     
     print(json.dumps(freeTime, indent=4)) 
-    print(freeTime[0])   
     
     return freeTime
+def insertEventBasedOnTimeSlot(timeStart: datetime, timeEnd: datetime, service: any):
+    timeStartStr = timeStart.isoformat()
+    timeEndStr = timeEnd.isoformat()
+    event = {
+    'summary': 'Démo Polyhacks 2023',
+    'location': '2500 Chemin de la Polytechique, Montréal, QC H3T 1J4',
+    'description': 'Un événement créé par l\'application Be There',
+    'start': {
+        'dateTime': timeStartStr,
+        'timeZone': 'America/New_York',
+    },
+    'end': {
+        'dateTime': timeEndStr,
+        'timeZone': 'America/New_York',
+    },
+    'recurrence': [
+    ],
+    'attendees': [
+    ],
+    'reminders': {
+        'useDefault': False,
+        'overrides': [
+        {'method': 'email', 'minutes': 24 * 60},
+        {'method': 'popup', 'minutes': 10},
+        ],
+    },
+    }
+
+    event = service.events().insert(calendarId='1d1630549e81efe019bc3f8bf0e5df9fef5139070a8f9b85c0c29ecbd06364f5@group.calendar.google.com', body=event).execute()
+    print('Event created: %s' % (event.get('htmlLink')))
+
 
 if __name__ == '__main__':
     main()
