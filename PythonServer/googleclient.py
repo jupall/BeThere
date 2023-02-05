@@ -10,6 +10,7 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
+from dateparse import *
 
 # If modifying these scopes, delete the file token.json.
 SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
@@ -50,7 +51,12 @@ def main():
         if(primaryCalendarId == ""):
             print("No primary calendar found")
             return
-        freeTime(primaryCalendarId, service) 
+        timeSlot = freeTime(primaryCalendarId, service) 
+        p1 = Person(timeSlot)
+        grid = Grid('2023-02-07T11:00:00-05:00', '2023-02-09T12:00:00-05:00') # TODO: modify later
+        pls = [p1]
+        grid.update(pls)
+        print(grid.choose(4)) 
 
     except HttpError as error:
         print('An error occurred: %s' % error)
@@ -107,7 +113,8 @@ def freeTime(user: str, service):
             freeTime.append({'start': b['end'], 'end': nextWeekTrunc})
         else: freeTime.append({'start': b['end'], 'end': busyTimes[nextElement]['start']})
     
-    print(json.dumps(freeTime, indent=4))    
+    print(json.dumps(freeTime, indent=4)) 
+    print(freeTime[0])   
     
     return freeTime
 

@@ -20,8 +20,9 @@ doc/api/
 *.js.deps
 *.js.map
 
-#No virtual env from server
+#Misc python files
 /PythonServer/venv/
+/PythonServer/__pycache__
 
 #No API Tokens
 /PythonServer/*.json
