@@ -6,6 +6,10 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'dart:math';
 import 'package:intl/intl.dart' as intl;
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'login_page.dart';
+import 'popup_modal.dart';
 
 const Color amberColor = Color.fromARGB(255, 247, 156, 38);
 const Color salmonColor = Color.fromARGB(255, 231, 103, 103);
@@ -14,7 +18,10 @@ const Color darkerGreyColor = Color.fromARGB(255, 184, 184, 184);
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(MyApp());
+  runApp(MaterialApp(
+    title: 'Be There',
+    home: MyApp(),
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -50,7 +57,7 @@ class MyApp extends StatelessWidget {
                         style:
                             TextStyle(fontSize: 20, color: Colors.amber[700])));
               } else if (snapshot.hasData) {
-                return const MyHomePage(title: 'Ma batterie');
+                return const LoginScreen();
               } else {
                 return const Center(
                   child: CircularProgressIndicator(),
@@ -213,11 +220,16 @@ class _MyHomePageState extends State<MyHomePage> {
                                     IconButton(
                                         hoverColor: Colors.amber,
                                         onPressed: () {
-                                          setState(() {
-                                            _entries.insert(0, "D");
-                                            _colorCodes.insert(0, 300);
-                                            _displayGroup.insert(0, false);
-                                          });
+                                          // setState(() {
+                                          //   _entries.insert(0, "D");
+                                          //   _colorCodes.insert(0, 300);
+                                          //   _displayGroup.insert(0, false);
+                                          // });
+                                          showDialog(
+                                              context: context,
+                                              builder: (context) {
+                                                return PopupModal();
+                                              });
                                         },
                                         icon: Icon(
                                           Icons.add,
