@@ -12,8 +12,7 @@ const Color amberColor = Color.fromARGB(255, 247, 156, 38);
 const Color salmonColor = Color.fromARGB(255, 231, 103, 103);
 const Color lightGreyColor = Color.fromARGB(255, 224, 224, 224);
 const Color darkerGreyColor = Color.fromARGB(255, 184, 184, 184);
-final List<String> entries = <String>['A', 'B', 'C'];
-final List<int> colorCodes = <int>[600, 500, 100];
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(MyApp());
@@ -68,15 +67,6 @@ class MyApp extends StatelessWidget {
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
   final String title;
 
   @override
@@ -87,7 +77,9 @@ class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
   double _randInt = 1.0;
   double _randInt2 = 1.0;
-
+  List<String> _entries = <String>['A', 'B', 'C'];
+  List<int> _colorCodes = <int>[600, 500, 100];
+  List<bool> _displayGroup = <bool>[false, false, false];
   @override
   void initState() {
     super.initState();
@@ -173,15 +165,33 @@ class _MyHomePageState extends State<MyHomePage> {
                             children: [
                               ListView.separated(
                                 shrinkWrap: true,
-                                itemCount: 25,
+                                padding: const EdgeInsets.all(8),
+                                itemCount: _entries.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  return InkWell(
+                                    child: Container(
+                                      height: 50,
+                                      decoration: BoxDecoration(
+                                          color:
+                                              Colors.amber[_colorCodes[index]],
+                                          borderRadius: const BorderRadius.all(
+                                              Radius.circular(15))),
+                                      child: Center(
+                                          child:
+                                              Text('Entry ${_entries[index]}')),
+                                    ),
+                                    onTap: () {
+                                      setState(() {
+                                        _displayGroup.fillRange(
+                                            0, _displayGroup.length, false);
+                                        _displayGroup[index] = true;
+                                      });
+                                    },
+                                  );
+                                },
                                 separatorBuilder:
                                     (BuildContext context, int index) =>
                                         const Divider(),
-                                itemBuilder: (BuildContext context, int index) {
-                                  return ListTile(
-                                    title: Text('item $index'),
-                                  );
-                                },
                               )
                             ],
                           )),
@@ -201,7 +211,20 @@ class _MyHomePageState extends State<MyHomePage> {
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Icon(Icons.add, color: Colors.white)
+                                    IconButton(
+                                        hoverColor: Colors.amber,
+                                        onPressed: () {
+                                          setState(() {
+                                            _entries.insert(0, "D");
+                                            _colorCodes.insert(0, 300);
+                                            _displayGroup.insert(0, false);
+                                          });
+                                        },
+                                        icon: Icon(
+                                          Icons.add,
+                                          color: Colors.white,
+                                        ),
+                                        color: Colors.white)
                                   ],
                                 ),
                               )
@@ -209,10 +232,38 @@ class _MyHomePageState extends State<MyHomePage> {
                           ))
                     ],
                   )
-                ])
+                ]),
+            SizedBox(width: 10),
+            Expanded(
+                child: Stack(
+              children: [
+                Container(
+                    height: 135 * 4,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: const BorderRadius.all(Radius.circular(20)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.5),
+                          spreadRadius: 5,
+                          blurRadius: 7,
+                          offset:
+                              const Offset(0, 5), // changes position of shadow
+                        ),
+                      ],
+                    ),
+                    child: Column()),
+              ],
+            )),
+            SizedBox(width: 10)
           ]),
         ]
             // This trailing comma makes auto-formatting nicer for build methods.
             ));
   }
+}
+
+Widget displayGroupInfo() {
+  // get what group to display from firebase realtime database
+  return Column(children: [SizedBox(width: 20)]);
 }
