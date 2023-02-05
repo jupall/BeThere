@@ -77,13 +77,37 @@ class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
   double _randInt = 1.0;
   double _randInt2 = 1.0;
-  List<String> _entries = <String>['A', 'B', 'C'];
-  List<int> _colorCodes = <int>[600, 500, 100];
+  List<String> _entries = <String>['jam night', 'd&d', 'hackermans'];
+  List<int> _colorCodes = <int>[600, 700, 800];
   List<bool> _displayGroup = <bool>[false, false, false];
+  List<MaterialColor> _colorPalette = <MaterialColor>[
+    Colors.blueGrey,
+    Colors.teal,
+    Colors.pink,
+    Colors.indigo,
+    Colors.deepPurple
+  ];
+  int _colorIndex = 0;
+  List<String> _participants = <String>[
+    'étienne l.',
+    'william m.',
+    'jean-luc l.',
+    'julien p.',
+    'polyhacker a.',
+    'polyhacker b.',
+    'polyhacker c.',
+    'polyhacker d.',
+    'polyhacker e.',
+    'polyhacker f.',
+    'polyhacker g.'
+  ];
+
+  int _nextColor = 0;
   @override
   void initState() {
     super.initState();
     _readData();
+    _nextColor = _colorCodes.last - 100;
   }
 
   void _readData() {
@@ -159,7 +183,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   Column(
                     children: [
                       SizedBox(
-                          height: 135 * 3 + 35,
+                          height: 135 * 3 + 50,
                           width: 135.0 - 5,
                           child: ListView(
                             children: [
@@ -172,13 +196,18 @@ class _MyHomePageState extends State<MyHomePage> {
                                     child: Container(
                                       height: 50,
                                       decoration: BoxDecoration(
-                                          color:
-                                              Colors.amber[_colorCodes[index]],
+                                          color: _colorPalette[0]
+                                              [_colorCodes[index]],
                                           borderRadius: const BorderRadius.all(
                                               Radius.circular(15))),
                                       child: Center(
-                                          child:
-                                              Text('Entry ${_entries[index]}')),
+                                          child: Text(
+                                        '${_entries[index]}',
+                                        style: TextStyle(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white),
+                                      )),
                                     ),
                                     onTap: () {
                                       setState(() {
@@ -196,39 +225,38 @@ class _MyHomePageState extends State<MyHomePage> {
                             ],
                           )),
                       SizedBox(
-                          height: 90,
-                          width: 135.0 - 10,
-                          child: ListView(
-                            children: [
-                              Container(
-                                height: 90,
-                                width: 135.0 - 30,
-                                decoration: const BoxDecoration(
-                                  color: Colors.teal,
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(20)),
-                                ),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    IconButton(
-                                        hoverColor: Colors.amber,
-                                        onPressed: () {
-                                          setState(() {
-                                            _entries.insert(0, "D");
-                                            _colorCodes.insert(0, 300);
-                                            _displayGroup.insert(0, false);
-                                          });
-                                        },
-                                        icon: Icon(
-                                          Icons.add,
-                                          color: Colors.white,
-                                        ),
-                                        color: Colors.white)
-                                  ],
-                                ),
-                              )
-                            ],
+                          height: 50,
+                          width: 135.0 - 20,
+                          child: Container(
+                            height: 90,
+                            width: 135.0 - 30,
+                            decoration: BoxDecoration(
+                              color: _colorPalette[0][500],
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(15)),
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                IconButton(
+                                    hoverColor: Colors.blueGrey,
+                                    onPressed: () {
+                                      setState(() {
+                                        _entries.insert(0, "d");
+                                        _nextColor = (_nextColor > 100)
+                                            ? _nextColor - 100
+                                            : 800;
+                                        _colorCodes.insert(0, _nextColor);
+                                        _displayGroup.insert(0, false);
+                                      });
+                                    },
+                                    icon: Icon(
+                                      Icons.add,
+                                      color: Colors.white,
+                                    ),
+                                    color: Colors.white)
+                              ],
+                            ),
                           ))
                     ],
                   )
@@ -238,24 +266,25 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: Stack(
               children: [
                 Container(
-                    height: 135 * 4,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: const BorderRadius.all(Radius.circular(20)),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.5),
-                          spreadRadius: 5,
-                          blurRadius: 7,
-                          offset:
-                              const Offset(0, 5), // changes position of shadow
-                        ),
-                      ],
-                    ),
-                    child: Column()),
+                  height: 135 * 4,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: const BorderRadius.all(Radius.circular(20)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.5),
+                        spreadRadius: 5,
+                        blurRadius: 7,
+                        offset:
+                            const Offset(0, 5), // changes position of shadow
+                      ),
+                    ],
+                  ),
+                ),
+                displayGroupInfo(_participants)
               ],
             )),
-            SizedBox(width: 10)
+            const SizedBox(width: 10)
           ]),
         ]
             // This trailing comma makes auto-formatting nicer for build methods.
@@ -263,7 +292,143 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-Widget displayGroupInfo() {
+Widget displayGroupInfo(List<String> participants) {
   // get what group to display from firebase realtime database
-  return Column(children: [SizedBox(width: 20)]);
+  return Row(
+    children: [
+      const SizedBox(width: 10),
+      Expanded(
+          child: Column(children: [
+        const SizedBox(height: 10),
+        Container(
+          height: 50,
+          decoration: const BoxDecoration(
+              color: Colors.blueGrey,
+              borderRadius: const BorderRadius.all(Radius.circular(15))),
+          child: const Center(
+              child: Text('hackermans',
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 24,
+                      color: Colors.white))),
+        ),
+        const SizedBox(height: 10),
+        Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const Text(
+                "donjons et dragons :",
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18.0,
+                ),
+              ),
+              buttonIcon(Icon(Icons.poll, color: Colors.white)),
+            ]),
+        const SizedBox(height: 15),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            RichText(
+              text: const TextSpan(
+                text: 'le dimanche 5 février,\n',
+                style: TextStyle(
+                    color: Colors.blueGrey,
+                    fontSize: 18.0,
+                    fontWeight: FontWeight.bold),
+                children: <TextSpan>[
+                  TextSpan(
+                      text: 'à dix-huit heures trente',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      )),
+                ],
+              ),
+            )
+          ],
+        ),
+        const SizedBox(height: 15),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            RichText(
+              text: const TextSpan(
+                text: 'liste des participants :\n',
+                style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 18.0,
+                    fontWeight: FontWeight.bold),
+              ),
+            )
+          ],
+        ),
+        SizedBox(
+            height: 135 * 2 - 15,
+            child: ListView(
+              children: [
+                ListView.separated(
+                  shrinkWrap: true,
+                  padding: const EdgeInsets.all(8),
+                  itemCount: participants.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Icon(Icons.arrow_right),
+                        InkWell(
+                            child: Text('${participants[index]}',
+                                style: const TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 18.0,
+                                    fontWeight: FontWeight.bold)))
+                      ],
+                    );
+                  },
+                  separatorBuilder: (BuildContext context, int index) =>
+                      const Divider(),
+                )
+              ],
+            )),
+        const SizedBox(height: 15),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            buttonIcon(Icon(
+              Icons.calendar_month,
+              color: Colors.white,
+            )),
+            RichText(
+              text: const TextSpan(
+                text: 'be there',
+                style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 18.0,
+                    fontStyle: FontStyle.italic),
+              ),
+            ),
+            buttonIcon(Icon(Icons.group_add, color: Colors.white))
+          ],
+        )
+      ])),
+      const SizedBox(width: 10)
+    ],
+  );
+}
+
+Widget buttonIcon(Icon icone) {
+  return InkWell(
+    child: Container(
+      height: 30,
+      width: 55,
+      decoration: const BoxDecoration(
+          color: Colors.blueGrey,
+          borderRadius: const BorderRadius.all(Radius.circular(10))),
+      child: Center(child: icone),
+    ),
+    onTap: () {
+      ;
+    },
+  );
 }
